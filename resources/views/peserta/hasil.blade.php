@@ -1,4 +1,4 @@
-@extends('siswa.base')
+@extends('peserta.base')
 
 @section('title', 'Hasil Ujian')
 
@@ -56,14 +56,14 @@
                     </div>
 
                     <div class="d-grid gap-3">
-                        <a href="{{ route('siswa.pendaftaran') }}"
+                        <a href="{{ route('peserta.pendaftaran') }}"
                            class="btn btn-success btn-lg rounded-4 py-3 fs-5 fw-bold shadow-sm animate__animated animate__pulse animate__infinite">
                             Ayo Daftar Sekarang!
                         </a>
                     </div>
 
-                    @if ($hasil->siswa->pendaftaran()->exists())
-                        <form action="{{ route('siswa.logout') }}" method="post">
+                    @if ($hasil->pesertaUjian->pendaftaran()->exists())
+                        <form action="{{ route('peserta.logout') }}" method="post">
                             @csrf
                             <button type="submit" class="btn btn-outline-danger rounded-pill mt-4 px-4 fw-bold">
                                 <i class="ti ti-logout me-1"></i> Keluar
@@ -83,7 +83,7 @@
                         </p>
                     </div>
                     
-                    <form action="{{ route('siswa.logout') }}" method="post">
+                    <form action="{{ route('peserta.logout') }}" method="post">
                         @csrf
                         <button type="submit" class="btn btn-outline-danger rounded-pill mt-4 px-4 fw-bold">
                             <i class="ti ti-logout me-1"></i> Keluar

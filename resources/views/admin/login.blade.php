@@ -49,12 +49,23 @@
                                         <img src="{{ asset('assets/images/logos/logo.png') }}" alt="logo" width="70">
                                     </div>
                                     <h3 class="fw-semibold mb-1">{{ config('app.name') }}</h3>
-                                    <p class="text-muted">Silakan masuk ke panel admin</p>
+                                    <p class="text-muted" id="roleDesc">
+                                        {{ $role === 'guru' ? 'Silakan masuk ke panel guru' : 'Silakan masuk ke panel admin' }}
+                                    </p>
                                 </div>
 
-                                <form method="POST" action="{{ route('admin.login.submit') }}">
+                                @php
+                                    $role = $role ?? 'admin';
+                                @endphp
+                                <form method="POST" action="{{ $role === 'guru' ? route('guru.login.submit') : route('admin.login.submit') }}" id="loginForm">
                                     @csrf
-
+                                    <div class="mb-3">
+                                        <label class="form-label">Login Sebagai</label>
+                                        <select class="form-select" id="roleSelect">
+                                            <option value="admin" {{ $role==='admin' ? 'selected' : '' }}>Admin</option>
+                                            <option value="guru"  {{ $role==='guru' ? 'selected' : '' }}>Guru</option>
+                                        </select>
+                                    </div>
                                     <div class="mb-3">
                                         <label class="form-label">Username</label>
                                         <div
@@ -142,6 +153,24 @@
                     $('#show_hide_password i').addClass("ti-eye");
                 }
             });
+
+            const roleSelect = document.getElementById('roleSelect');
+            const form = document.getElementById('loginForm');
+            const roleDesc = document.getElementById('roleDesc');
+
+            function applyRole() {
+            const role = roleSelect.value;
+            form.action = role === 'guru'
+                ? "{{ route('guru.login.submit') }}"
+                : "{{ route('admin.login.submit') }}";
+
+            roleDesc.innerText = role === 'guru'
+                ? "Silakan masuk ke panel guru"
+                : "Silakan masuk ke panel admin";
+            }
+
+            roleSelect.addEventListener('change', applyRole);
+            applyRole();
         });
     </script>
 </body>

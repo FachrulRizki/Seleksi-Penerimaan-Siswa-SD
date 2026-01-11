@@ -9,7 +9,7 @@ class HasilUjian extends Model
     protected $table = 'hasil_ujian';
 
     protected $fillable = [
-        'siswa_id',
+        'peserta_ujian_id',
         'jumlah_benar',
         'lulus',
     ];
@@ -18,8 +18,8 @@ class HasilUjian extends Model
         'lulus' => 'boolean',
     ];
 
-    public function siswa()
+    public function pesertaUjian()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(PesertaUjian::class, 'peserta_ujian_id');
     }
 }

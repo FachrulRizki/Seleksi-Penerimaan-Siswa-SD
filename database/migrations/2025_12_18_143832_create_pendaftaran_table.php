@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
+            $table->foreignId('peserta_ujian_id')->constrained('peserta_ujian')->cascadeOnDelete();
             $table->string('nama_orang_tua');
             $table->string('alamat');
             $table->string('file_akta');
             $table->string('file_kk');
 
-            $table->unique('siswa_id');
+            $table->unique('peserta_ujian_id');
             $table->timestamps();
         });
     }

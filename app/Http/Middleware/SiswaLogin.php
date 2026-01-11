@@ -15,8 +15,8 @@ class SiswaLogin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!session()->has('siswa_id')) {
-            return redirect()->route('login.ujian')
+        if (!session()->has('peserta_ujian_id')) {
+            return redirect()->route('siswa.login')
                 ->with('error', 'Silakan login terlebih dahulu.');
         }
         

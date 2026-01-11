@@ -9,15 +9,15 @@ class JawabanSiswa extends Model
     protected $table = 'jawaban_siswa';
 
     protected $fillable = [
-        'siswa_id',
+        'peserta_ujian_id',
         'soal_id',
         'opsi_jawaban_id',
         'benar'
     ];
 
-    public function siswa()
+    public function pesertaUjian()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(PesertaUjian::class, 'peserta_ujian_id');
     }
 
     public function soal()

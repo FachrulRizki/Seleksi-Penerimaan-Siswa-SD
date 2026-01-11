@@ -12,18 +12,18 @@ class UjianController extends Controller
 {
     public function start()
     {
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
-        if (HasilUjian::where('siswa_id', $siswaId)->exists()) {
-            return redirect()->route('siswa.hasil');
+        if (HasilUjian::where('peserta_ujian_id', $pesertaId)->exists()) {
+            return redirect()->route('peserta.hasil');
         }
 
-        return redirect()->route('siswa.ujian.show', 1);
+        return redirect()->route('peserta.ujian.show', 1);
     }
 
     public function show($nomor)
     {
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
         $urutanSoal = Soal::orderBy('created_at')->pluck('id');
 
@@ -38,11 +38,11 @@ class UjianController extends Controller
         $soal = Soal::with('opsiJawaban')->findOrFail($soalId);
 
         $jawaban = JawabanSiswa::where([
-            'siswa_id' => $siswaId,
+            'peserta_ujian_id' => $pesertaId,
             'soal_id'  => $soal->id
         ])->first();
 
-        return view('siswa.ujian', compact(
+        return view('peserta.ujian', compact(
             'soal',
             'nomor',
             'totalSoal',
@@ -58,13 +58,13 @@ class UjianController extends Controller
             'nomor' => 'required|integer'
         ]);
 
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
         $opsi = OpsiJawaban::findOrFail($data['opsi_jawaban_id']);
 
         JawabanSiswa::updateOrCreate(
             [
-                'siswa_id' => $siswaId,
+                'peserta_ujian_id' => $pesertaId,
                 'soal_id'  => $data['soal_id']
             ],
             [
@@ -79,27 +79,27 @@ class UjianController extends Controller
             return $this->finish($request);
         }
 
-        return redirect()->route('siswa.ujian.show', $data['nomor']);
+        return redirect()->route('peserta.ujian.show', $data['nomor']);
     }
 
     public function finish()
     {
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
-        if (HasilUjian::where('siswa_id', $siswaId)->exists()) {
-            return redirect()->route('siswa.hasil');
+        if (HasilUjian::where('peserta_ujian_id', $pesertaId)->exists()) {
+            return redirect()->route('peserta.hasil');
         }
 
-        $jumlahBenar = JawabanSiswa::where('siswa_id', $siswaId)
+        $jumlahBenar = JawabanSiswa::where('peserta_ujian_id', $pesertaId)
             ->where('benar', true)
             ->count();
 
         HasilUjian::create([
-            'siswa_id' => $siswaId,
+            'peserta_ujian_id' => $pesertaId,
             'jumlah_benar' => $jumlahBenar,
             'lulus' => $jumlahBenar >= 7
         ]);
 
-        return redirect()->route('siswa.hasil');
+        return redirect()->route('peserta.hasil');
     }
 }

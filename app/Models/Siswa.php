@@ -7,30 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 class Siswa extends Model
 {
     protected $table = 'siswa';
-    
+
     protected $fillable = [
-        'nama_lengkap',
-        'nomor_ujian',
+        'nama',
+        'nis',
+        'nisn',
+        'jenis_kelamin',
+        'tanggal_lahir',
+        'alamat',
+        'kelas_id',
     ];
 
-    public function jawaban()
-    {
-        return $this->hasMany(JawabanSiswa::class);
-    }
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+    ];
 
-    public function hasilUjian()
+    public function kelas()
     {
-        return $this->hasOne(HasilUjian::class);
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
-
-    public function pendaftaran()
-    {
-        return $this->hasOne(Pendaftaran::class);
-    }
-
-    public function isLulus(): bool
-    {
-        return $this->hasilUjian()->exists() && $this->hasilUjian->lulus;
-    }
-
 }

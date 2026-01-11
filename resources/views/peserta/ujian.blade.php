@@ -1,4 +1,4 @@
-@extends('siswa.base')
+@extends('peserta.base')
 
 @section('title', 'Ujian Seleksi')
 
@@ -116,7 +116,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('siswa.ujian.submit') }}" id="formUjian">
+                    <form method="POST" action="{{ route('peserta.ujian.submit') }}" id="formUjian">
                         @csrf
                         <input type="hidden" name="soal_id" value="{{ $soal->id }}">
                         <input type="hidden" name="nomor" value="{{ $nomor }}">
@@ -150,7 +150,7 @@
 
                         <div class="nav-container d-flex justify-content-between align-items-center bg-white p-3 border-top shadow-lg">
                             @if($nomor > 1)
-                                <a href="{{ route('siswa.ujian.show', $nomor - 1) }}"
+                                <a href="{{ route('peserta.ujian.show', $nomor - 1) }}"
                                    class="btn bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold">
                                    <i class="ti ti-arrow-left"></i> <span class="d-none d-sm-inline ms-1">Sebelumnya</span>
                                 </a>

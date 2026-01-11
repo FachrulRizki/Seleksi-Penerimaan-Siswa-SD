@@ -18,18 +18,18 @@ class HasilUjianExport implements
 {
     public function collection()
     {
-        return HasilUjian::with('siswa', 'siswa.pendaftaran')
+        return HasilUjian::with('pesertaUjian', 'pesertaUjian.pendaftaran')
             ->latest()
             ->get()
             ->map(function ($item) {
                 return [
-                    'Nama Siswa'     => $item->siswa->nama_lengkap,
-                    'Nomor Ujian'    => $item->siswa->nomor_ujian,
+                    'Nama Peserta'   => $item->pesertaUjian->nama_lengkap,
+                    'Nomor Ujian'    => $item->pesertaUjian->nomor_ujian,
                     'Jumlah Benar'   => $item->jumlah_benar,
                     'Status'         => $item->lulus ? 'LULUS' : 'TIDAK LULUS',
                     'Tanggal Ujian'  => $item->created_at->format('d-m-Y, H:i'),
-                    'Nama Orang Tua' => $item->siswa->pendaftaran?->nama_orang_tua ?? '-',
-                    'Alamat'         => $item->siswa->pendaftaran?->alamat ?? '-',
+                    'Nama Orang Tua' => $item->pesertaUjian->pendaftaran?->nama_orang_tua ?? '-',
+                    'Alamat'         => $item->pesertaUjian->pendaftaran?->alamat ?? '-',
                 ];
             });
     }
@@ -37,7 +37,7 @@ class HasilUjianExport implements
     public function headings(): array
     {
         return [
-            'Nama Siswa',
+            'Nama Peserta',
             'Nomor Ujian',
             'Jumlah Benar',
             'Status',

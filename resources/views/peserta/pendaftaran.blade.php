@@ -1,4 +1,4 @@
-@extends('siswa.base')
+@extends('peserta.base')
 
 @section('title', 'Pendaftaran')
 
@@ -51,7 +51,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('siswa.pendaftaran.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('peserta.pendaftaran.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row g-4">

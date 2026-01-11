@@ -3,29 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pendaftaran;
-use App\Models\Registration;
 use Illuminate\Http\Request;
 
 class PendaftaranController extends Controller
 {
     public function create()
     {
-        $exists = Pendaftaran::where('siswa_id', session('siswa_id'))->exists();
+        $exists = Pendaftaran::where('peserta_ujian_id', session('peserta_ujian_id'))->exists();
 
         if ($exists) {
-            return redirect()->route('siswa.hasil')
+            return redirect()->route('peserta.hasil')
                 ->with('error', 'Anda sudah melakukan pendaftaran.');
         }
 
-        return view('siswa.pendaftaran');
+        return view('peserta.pendaftaran');
     }
 
     public function store(Request $request)
     {
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
-        if (Pendaftaran::where('siswa_id', $siswaId)->exists()) {
-            return redirect()->route('siswa.hasil');
+        if (Pendaftaran::where('peserta_ujian_id', $pesertaId)->exists()) {
+            return redirect()->route('peserta.hasil');
         }
 
         $data = $request->validate([
@@ -35,14 +34,14 @@ class PendaftaranController extends Controller
             'file_kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $data['siswa_id'] = $siswaId;
+        $data['peserta_ujian_id'] = $pesertaId;
         $data['file_akta'] = $request->file('file_akta')->store('pendaftaran/akta', 'public');
         $data['file_kk'] = $request->file('file_kk')->store('pendaftaran/kk', 'public');
 
         Pendaftaran::create($data);
 
-        session()->forget(['siswa_id', 'nama_siswa']);
+        session()->forget(['peserta_ujian_id', 'nama_peserta']);
 
-        return redirect()->route('siswa.login')->with('success', 'Pendaftaran berhasil dikirim.');
+        return redirect()->route('peserta.login')->with('success', 'Pendaftaran berhasil dikirim.');
     }
 }

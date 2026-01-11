@@ -13,7 +13,7 @@
     <!-- Core Css -->
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
 
-    <title>{{ config('app.name') }} | Login Siswa</title>
+    <title>{{ config('app.name') }} | Pendaftaran Peserta</title>
 
     <style>
         .auth-card .card {
@@ -49,7 +49,7 @@
                                         <img src="{{ asset('assets/images/logos/logo.png') }}" alt="logo" width="70">
                                     </div>
                                     <h3 class="fw-semibold mb-1">{{ config('app.name') }}</h3>
-                                    <p class="text-muted">Silakan masuk ke panel ujian</p>
+                                    <p class="text-muted">Silakan daftar untuk mendapatkan <strong>nomor ujian</strong></p>
                                 </div>
 
                                 @if (session('error'))
@@ -72,7 +72,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('siswa.login.submit') }}">
+                                <form method="POST" action="{{ route('peserta.daftar.store') }}">
                                     @csrf
 
                                     <div class="mb-3">
@@ -92,26 +92,30 @@
                                         @enderror
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label">No. Ujian</label>
-                                        <div class="input-group border rounded-2 overflow-hidden @error('nomor_ujian') is-invalid @enderror">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tanggal Lahir</label>
+                                        <div class="input-group border rounded-2 overflow-hidden @error('tanggal_lahir') is-invalid @enderror">
                                             <span class="input-group-text bg-white border-0 text-muted">
-                                                <i class="ti ti-id"></i>
+                                                <i class="ti ti-calendar"></i>
                                             </span>
-                                            <input type="text" class="form-control border-0 ps-0 shadow-none"
-                                                name="nomor_ujian" placeholder="Contoh: SD-2025-ABC123">
+                                            <input type="date" class="form-control border-0 ps-0 shadow-none"
+                                                name="tanggal_lahir" value="{{ old('tanggal_lahir') }}">
                                         </div>
-                                        @error('nomor_ujian')
-                                            <span class="invalid-feedback d-block" role="alert">
-                                                {{ $message }}
-                                            </span>
+                                        @error('tanggal_lahir')
+                                            <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <button type="submit"
                                         class="btn btn-primary w-100 py-2 fs-4 rounded-2 fw-bold">
-                                        Masuk Sekarang
+                                        Daftar Sekarang
                                     </button>
+
+                                    <div class="text-center mt-3">
+                                        <a href="{{ route('peserta.login') }}" class="text-primary fw-semibold">
+                                            Sudah punya nomor ujian? Masuk sekarang
+                                        </a>
+                                    </div>
                                 </form>
                             </div>
                         </div>

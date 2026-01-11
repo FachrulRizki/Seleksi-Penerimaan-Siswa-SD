@@ -39,8 +39,8 @@
                         <a href="{{ route('admin.soal.index') }}" class="btn btn-primary px-4 shadow-sm">
                             <i class="ti ti-books me-1"></i> Kelola Soal
                         </a>
-                        <a href="{{ route('admin.siswa.index') }}" class="btn btn-white px-4 shadow-sm">
-                            <i class="ti ti-users me-1"></i> Data Siswa
+                        <a href="{{ route('admin.peserta.index') }}" class="btn btn-white px-4 shadow-sm">
+                            <i class="ti ti-users me-1"></i> Data Peserta Ujian
                         </a>
                     </div>
                 </div>

@@ -51,19 +51,28 @@
         <div class="card">
             <div class="card-body">
                 <form action="" method="get" class="mb-4 pb-4 border-bottom">
-                    <div class="row">
+                    <div class="row row-gap-3">
                         <div class="col-md-4">
-                            <input type="search" class="form-control" placeholder="Cari siswa..." name="search"
-                                value="{{ request('search') }}">
+                            <input type="search" class="form-control" placeholder="Cari nama / nis / nisn..." name="search" value="{{ request('search') }}">
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-3">
+                            <select name="kelas_id" class="form-select">
+                            <option value="">Semua Kelas</option>
+                                @foreach($kelas as $k)
+                                    <option value="{{ $k->id }}" {{ (string)request('kelas_id') === (string)$k->id ? 'selected' : '' }}>
+                                    {{ $k->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-primary w-100" type="submit">Filter</button>
+                        </div>
+                        <div class="col-md-4">
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('admin.siswa.export') }}" class="btn btn-success">
-                                    <i class="ti ti-file-export me-1 ms-n1"></i> Export
-                                </a>
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#modalTambah" class="btn btn-primary">
+                                <a href="{{ route('admin.siswa.create') }}" class="btn btn-primary">
                                     <i class="ti ti-plus me-1 ms-n1"></i> Tambah Siswa
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -74,44 +83,26 @@
                             <tr>
                                 <th class="text-center" style="width: 60px">No</th>
                                 <th>Nama Lengkap</th>
-                                <th>No. Ujian</th>
-                                <th class="text-center">Status Ujian</th>
-                                <th class="text-center">Status Lulus</th>
+                                <th>NIS</th>
+                                <th>NISN</th>
+                                <th>Jenis Kelamin</th>
+                                <th>Tanggal Lahir</th>
+                                <th class="text-center">Kelas</th>
                                 <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($siswa as $item)
                                 <tr class="align-middle">
-                                    <td class="text-center">
-                                        {{ ($siswa->currentPage() - 1) * $siswa->perPage() + $loop->iteration }}</td>
-                                    <td>{{ $item->nama_lengkap }}</td>
-                                    <td>{{ $item->nomor_ujian }}</td>
-                                    <td class="text-center">
-                                        @if ($item->hasilUjian()->exists())
-                                            <span class="badge bg-success fs-2">Sudah Ujian</span>
-                                        @else
-                                            <span class="badge bg-warning fs-2">Belum Ujian</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if ($item->hasilUjian()->exists())
-                                            @if ($item->isLulus())
-                                                <span class="badge bg-success fs-2">Lulus</span>
-                                            @else
-                                                <span class="badge bg-danger fs-2">Tidak Lulus</span>
-                                            @endif
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                    <td class="text-center">{{ ($siswa->currentPage() - 1) * $siswa->perPage() + $loop->iteration }}</td>
+                                    <td>{{ $item->nama }}</td>
+                                    <td>{{ $item->nis }}</td>
+                                    <td>{{ $item->nisn }}</td>
+                                    <td>{{ $item->jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                    <td>{{ $item->tanggal_lahir?->translatedFormat('d F Y') ?? '-' }}</td>
+                                    <td class="text-center">{{ $item->kelas?->nama ?? '-' }}</td>
                                     <td>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('admin.siswa.show', $item->id) }}"
-                                                class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Detail">
-                                                <i class="ti ti-eye"></i>
-                                            </a>
                                             <a href="{{ route('admin.siswa.edit', $item->id) }}"
                                                 class="btn btn-warning btn-sm" data-bs-toggle="tooltip"
                                                 data-bs-placement="top" title="Edit">
@@ -131,41 +122,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Belum ada data siswa</td>
+                                    <td colspan="8" class="text-center">Belum ada data siswa</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                {{ $siswa->appends(['search' => request('search')])->links() }}
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modalTambahLabel">Tambah Siswa</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('admin.siswa.store') }}" method="post" id="formTambah">
-                        @csrf
-                        <div>
-                            <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror" name="nama_lengkap" placeholder="Budiono Siregar">
-                            @error('nama_lengkap')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" form="formTambah" class="btn btn-primary">Simpan</button>
-                </div>
+                {{ $siswa->links() }}
             </div>
         </div>
     </div>

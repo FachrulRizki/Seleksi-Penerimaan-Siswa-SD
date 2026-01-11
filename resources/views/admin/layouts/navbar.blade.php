@@ -1,3 +1,13 @@
+@php
+  $isAdmin = Auth::guard('admin')->check();
+  $isGuru  = Auth::guard('guru')->check();
+  $user    = $isAdmin ? Auth::guard('admin')->user() : ($isGuru ? Auth::guard('guru')->user() : null);
+
+  $nama = $user?->nama ?? '-';
+  $roleLabel = $isAdmin ? 'Admin' : 'Guru';
+
+  $logoutRoute = $isAdmin ? route('admin.logout') : route('guru.logout');
+@endphp
 <header class="topbar">
     <div class="with-vertical">
         <nav class="navbar navbar-expand-lg p-0">
@@ -37,7 +47,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="overflow-hidden rounded-circle">
                                         <div class="ratio ratio-1x1" style="height: 35px; width: 35px">
-                                            <img src="https://ui-avatars.com/api/?name={{ Auth::guard('admin')->user()->nama }}&background=5D87FF&color=fff" class="rounded-circle" width="35" height="35" alt="Profil" />
+                                            <img src="https://ui-avatars.com/api/?name={{ $nama }}&background=5D87FF&color=fff" class="rounded-circle" width="35" height="35" alt="Profil" />
                                         </div>
                                     </div>
                                 </div>
@@ -51,16 +61,16 @@
                                     <div class="d-flex align-items-center py-9 mx-7 border-bottom">
                                         <div class="overflow-hidden rounded-circle">
                                             <div class="ratio ratio-1x1" style="width: 80px; height: 80px">
-                                                <img src="https://ui-avatars.com/api/?name={{ Auth::guard('admin')->user()->nama }}&background=5D87FF&color=fff" class="rounded-circle" width="80" height="80" alt="Profil" />
+                                                <img src="https://ui-avatars.com/api/?name={{ $nama }}&background=5D87FF&color=fff" class="rounded-circle" width="80" height="80" alt="Profil" />
                                             </div>
                                         </div>
                                         <div class="ms-3">
-                                            <h5 class="mb-1 fs-4 fw-semibold">{{ Auth::guard('admin')->user()->nama }}</h5>
-                                            <span class="d-block text-capitalize">Admin</span>
+                                            <h5 class="mb-1 fs-4 fw-semibold">{{ $nama }}</h5>
+                                            <span class="d-block text-capitalize">{{ $roleLabel }}</span>
                                         </div>
                                     </div>
                                     <div class="d-grid py-4 px-7 pt-8">
-                                        <form action="{{ route('admin.logout') }}" method="post" id="logout-form">
+                                        <form action="{{ $logoutRoute }}" method="post" id="logout-form">
                                             @csrf
                                         </form>
                                         <button type="submit" class="btn btn-primary" form="logout-form">Keluar</button>

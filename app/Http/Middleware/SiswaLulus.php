@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\PesertaUjian;
 use App\Models\Siswa;
 use Closure;
 use Illuminate\Http\Request;
@@ -16,15 +17,15 @@ class SiswaLulus
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $siswaId = session('siswa_id');
+        $pesertaId = session('peserta_ujian_id');
 
-        if (!$siswaId) {
-            return redirect()->route('login.ujian');
+        if (!$pesertaId) {
+            return redirect()->route('siswa.login');
         }
 
-        $siswa = Siswa::find($siswaId);
+        $peserta = PesertaUjian::find($pesertaId);
 
-        if (!$siswa || !$siswa->isLulus()) {
+        if (!$peserta || !$peserta->isLulus()) {
             return redirect()->route('siswa.hasil')->with('error', 'Anda tidak memenuhi syarat pendaftaran.');
         }
         

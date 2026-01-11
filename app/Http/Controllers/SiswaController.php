@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\HasilUjianExport;
+use App\Models\PesertaUjian;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -10,84 +11,104 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $search = request('search');
+        $peserta = PesertaUjian::query();
 
-        $siswa = Siswa::query();
-
-        if ($search) {
-            $siswa->where('nama_lengkap', 'like', "%{$search}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $peserta->where(function ($qq) use ($search) {
+                $qq->where('nama_lengkap', 'like', "%{$search}%")
+                ->orWhere('nomor_ujian', 'like', "%{$search}%");
+            });
         }
 
-        $siswa = $siswa->latest()->paginate(10);
+        if ($request->filled('status_ujian') && $request->status_ujian !== 'all') {
+            if ($request->status_ujian === 'sudah') {
+                $peserta->whereHas('hasilUjian');
+            } elseif ($request->status_ujian === 'belum') {
+                $peserta->whereDoesntHave('hasilUjian');
+            }
+        }
 
-        return view('admin.siswa.index', compact('siswa'));
+        if ($request->filled('status_lulus') && $request->status_lulus !== 'all') {
+            if ($request->status_lulus === 'lulus') {
+                $peserta->whereHas('hasilUjian', fn($hq) => $hq->where('lulus', 1));
+            } elseif ($request->status_lulus === 'tidak') {
+                $peserta->whereHas('hasilUjian', fn($hq) => $hq->where('lulus', 0));
+            }
+        }
+
+        $peserta = $peserta->latest()->paginate(10)->appends($request->query());
+
+        return view('admin.peserta.index', compact('peserta'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'nama_lengkap' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date',
         ]);
 
         $data['nomor_ujian'] = $this->generateNomorUjian();
 
-        Siswa::create($data);
+        PesertaUjian::create($data);
 
         return redirect()
-            ->route('admin.siswa.index')
-            ->with('success', 'Data siswa berhasil ditambahkan.');
+            ->route('admin.peserta.index')
+            ->with('success', 'Data peserta berhasil ditambahkan.');
     }
 
-    public function edit(Siswa $siswa)
+    public function edit(PesertaUjian $pesertum)
     {
-        return view('admin.siswa.edit', compact('siswa'));
+        return view('admin.peserta.edit', ['peserta' => $pesertum]);
     }
 
-    public function update(Request $request, Siswa $siswa)
+    public function update(Request $request, PesertaUjian $pesertum)
     {
         $data = $request->validate([
             'nama_lengkap' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date',
         ]);
 
-        $siswa->update($data);
+        $pesertum->update($data);
 
         return redirect()
-            ->route('admin.siswa.index')
-            ->with('success', 'Data siswa berhasil diperbarui.');
+            ->route('admin.peserta.index')
+            ->with('success', 'Data peserta berhasil diperbarui.');
     }
 
-    public function destroy(Siswa $siswa)
+    public function destroy(PesertaUjian $pesertum)
     {
-        $siswa->delete();
+        $pesertum->delete();
 
-        return back()->with('success', 'Data siswa dihapus.');
+        return back()->with('success', 'Data peserta berhasil dihapus.');
     }
 
-    public function show(Siswa $siswa)
+    public function show(PesertaUjian $pesertum)
     {
-        $siswa->load([
+        $pesertum->load([
             'hasilUjian',
             'pendaftaran',
             'jawaban.soal',
             'jawaban.opsiJawaban'
         ]);
 
-        return view('admin.siswa.show', compact('siswa'));
+        return view('admin.peserta.show', ['peserta' => $pesertum]);
     }
 
     private function generateNomorUjian(): string
     {
         do {
             $kode = 'SD-' . now()->format('Y') . '-' . strtoupper(Str::random(6));
-        } while (Siswa::where('nomor_ujian', $kode)->exists());
+        } while (PesertaUjian::where('nomor_ujian', $kode)->exists());
 
         return $kode;
     }
 
     public function export()
     {
-        return Excel::download(new HasilUjianExport, 'hasil_ujian_siswa.xlsx');
+        return Excel::download(new HasilUjianExport, 'hasil_ujian_peserta.xlsx');
     }
 }
