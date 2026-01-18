@@ -144,7 +144,6 @@
                     <div class="row g-3">
                         <div class="col-6">
                             <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600" class="img-fluid rounded-4 shadow-sm w-100 mb-3" alt="Kegiatan 1">
-                            <img src="https://images.unsplash.com/photo-1577896335477-28d85d272890?auto=format&fit=crop&q=80&w=600" class="img-fluid rounded-4 shadow-sm w-100" alt="Kegiatan 2">
                         </div>
                         <div class="col-6 mt-5">
                             <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=600" class="img-fluid rounded-4 shadow-sm w-100 mb-3" alt="Kegiatan 3">
