@@ -21,7 +21,8 @@
                     </div>
                     <div class="col-3">
                         <div class="text-end mb-n5">
-                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid" style="width: 180px">
+                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid"
+                                style="width: 180px">
                         </div>
                     </div>
                 </div>
@@ -53,30 +54,38 @@
                 <form action="" method="get" class="mb-4 pb-4 border-bottom">
                     <div class="row row-gap-3">
                         <div class="col-md-4">
-                            <input type="search" class="form-control" placeholder="Cari nama / nomor ujian..." name="search"
-                                value="{{ request('search') }}">
+                            <input type="search" class="form-control" placeholder="Cari nama / nomor ujian..."
+                                name="search" value="{{ request('search') }}">
                         </div>
                         <div class="col-md-3">
                             <select name="status_ujian" class="form-select">
-                                <option value="all" {{ request('status_ujian', 'all')=='all' ? 'selected' : '' }}>Semua Status Ujian</option>
-                                <option value="belum" {{ request('status_ujian')=='belum' ? 'selected' : '' }}>Belum Ujian</option>
-                                <option value="sudah" {{ request('status_ujian')=='sudah' ? 'selected' : '' }}>Sudah Ujian</option>
+                                <option value="all" {{ request('status_ujian', 'all') == 'all' ? 'selected' : '' }}>Semua
+                                    Status Ujian</option>
+                                <option value="belum" {{ request('status_ujian') == 'belum' ? 'selected' : '' }}>Belum Ujian
+                                </option>
+                                <option value="sudah" {{ request('status_ujian') == 'sudah' ? 'selected' : '' }}>Sudah Ujian
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <select name="status_lulus" class="form-select">
-                                <option value="all" {{ request('status_lulus', 'all')=='all' ? 'selected' : '' }}>Semua Status Lulus</option>
-                                <option value="lulus" {{ request('status_lulus')=='lulus' ? 'selected' : '' }}>Lulus</option>
-                                <option value="tidak" {{ request('status_lulus')=='tidak' ? 'selected' : '' }}>Tidak Lulus</option>
+                                <option value="all" {{ request('status_lulus', 'all') == 'all' ? 'selected' : '' }}>Semua
+                                    Status Lulus</option>
+                                <option value="lulus" {{ request('status_lulus') == 'lulus' ? 'selected' : '' }}>Lulus
+                                </option>
+                                <option value="tidak" {{ request('status_lulus') == 'tidak' ? 'selected' : '' }}>Tidak Lulus
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2 d-flex gap-2">
                             <button class="btn btn-primary w-100" type="submit">Filter</button>
-                            <a class="btn bg-danger-subtle text-danger w-100" href="{{ route('admin.peserta.index') }}">Reset</a>
+                            <a class="btn bg-danger-subtle text-danger w-100"
+                                href="{{ route('admin.peserta.index') }}">Reset</a>
                         </div>
                         <div class="col-md-4">
                             <div class="d-flex gap-2">
-                                <button type="button" data-bs-toggle="modal" data-bs-target="#modalTambah" class="btn btn-primary">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#modalTambah"
+                                    class="btn btn-primary">
                                     <i class="ti ti-plus me-1 ms-n1"></i> Tambah Peserta
                                 </button>
                                 <a href="{{ route('admin.peserta.export') }}" class="btn btn-success">
@@ -139,7 +148,8 @@
                                                 data-bs-placement="top" title="Edit">
                                                 <i class="ti ti-edit"></i>
                                             </a>
-                                            <form action="{{ route('admin.peserta.destroy', $item->id) }}" method="post">
+                                            <form action="{{ route('admin.peserta.destroy', $item->id) }}"
+                                                method="post">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm"
@@ -171,11 +181,24 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <form action="{{ route('admin.peserta.store') }}" method="post" id="formTambah">
                         @csrf
                         <div class="mb-3">
                             <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror" name="nama_lengkap" placeholder="Budiono Siregar">
+                            <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror"
+                                name="nama_lengkap" placeholder="Budiono Siregar">
                             @error('nama_lengkap')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -200,3 +223,12 @@
         </div>
     </div>
 @endsection
+
+@if ($errors->any())
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var modal = new bootstrap.Modal(document.getElementById('modalTambah'));
+            modal.show();
+        });
+    </script>
+@endif

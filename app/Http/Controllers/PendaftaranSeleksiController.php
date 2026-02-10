@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 use App\Models\PesertaUjian;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PendaftaranSeleksiController extends Controller
 {
@@ -19,6 +20,19 @@ class PendaftaranSeleksiController extends Controller
             'nama_lengkap' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date',
         ]);
+
+        // Hitung umur
+        $umur = Carbon::parse($data['tanggal_lahir'])->age;
+
+        // Cek jika umur < 7 tahun
+        if ($umur < 7) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'tanggal_lahir' => 'Calon siswa harus berusia minimal 7 tahun untuk dapat mendaftar.'
+                ]);
+        }
 
         $data['nomor_ujian'] = $this->generateNomorUjian();
 

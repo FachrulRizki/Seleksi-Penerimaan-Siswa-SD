@@ -82,6 +82,12 @@
                             Minta tolong Ayah atau Bunda untuk menghubungi Bapak/Ibu Guru di sekolah ya untuk informasi selanjutnya. 😊
                         </p>
                     </div>
+
+                    <div class="p-3 rounded-4 bg-light border border-dashed border-2">
+                        <h3>
+                            +62 822-9359-7876
+                        </h3>
+                    </div>
                     
                     <form action="{{ route('peserta.logout') }}" method="post">
                         @csrf
