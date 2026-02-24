@@ -73,13 +73,13 @@
                         </div>
                         <div class="col-auto border-start ps-3">
                             <div class="d-flex align-items-center gap-2">
-                                <h1 class="fw-bold mb-0 text-brand">500+</h1>
+                                <h1 class="fw-bold mb-0 text-brand">250+</h1>
                                 <div class="text-muted lh-1">Siswa<br>Aktif</div>
                             </div>
                         </div>
                         <div class="col-auto border-start ps-3">
                             <div class="d-flex align-items-center gap-2">
-                                <h1 class="fw-bold mb-0 text-brand">25</h1>
+                                <h1 class="fw-bold mb-0 text-brand">11</h1>
                                 <div class="text-muted lh-1">Guru<br>Profesional</div>
                             </div>
                         </div>
