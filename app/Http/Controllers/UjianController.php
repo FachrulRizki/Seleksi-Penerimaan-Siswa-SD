@@ -14,9 +14,21 @@ class UjianController extends Controller
     {
         $pesertaId = session('peserta_ujian_id');
 
-        if (HasilUjian::where('peserta_ujian_id', $pesertaId)->exists()) {
-            return redirect()->route('peserta.hasil');
+        // 🔒 Cek kuota
+        if (HasilUjian::where('lulus', true)->count() >= 28) {
+            return redirect()->route('peserta.hasil')
+                ->with('error', 'Kuota 28 peserta sudah terpenuhi');
         }
+
+        // 🔥 Pastikan data ada + waktu mulai tersimpan
+        HasilUjian::firstOrCreate(
+            ['peserta_ujian_id' => $pesertaId],
+            [
+                'waktu_mulai' => now(),
+                'jumlah_benar' => 0,
+                'lulus' => false
+            ]
+        );
 
         return redirect()->route('peserta.ujian.show', 1);
     }
@@ -25,8 +37,21 @@ class UjianController extends Controller
     {
         $pesertaId = session('peserta_ujian_id');
 
-        $urutanSoal = Soal::orderBy('created_at')->pluck('id');
+        $hasil = HasilUjian::firstOrCreate(
+            ['peserta_ujian_id' => $pesertaId],
+            [
+                'jumlah_benar' => 0,
+                'lulus' => false
+            ]
+        );
 
+        if (is_null($hasil->waktu_mulai)) {
+            $hasil->waktu_mulai = now();
+            $hasil->save();
+            $hasil->refresh();
+        }
+
+        $urutanSoal = Soal::orderBy('created_at')->pluck('id');
         $totalSoal = $urutanSoal->count();
 
         if ($nomor < 1 || $nomor > $totalSoal) {
@@ -39,14 +64,15 @@ class UjianController extends Controller
 
         $jawaban = JawabanSiswa::where([
             'peserta_ujian_id' => $pesertaId,
-            'soal_id'  => $soal->id
+            'soal_id' => $soal->id
         ])->first();
 
         return view('peserta.ujian', compact(
             'soal',
             'nomor',
             'totalSoal',
-            'jawaban'
+            'jawaban',
+            'hasil'
         ));
     }
 
@@ -60,12 +86,13 @@ class UjianController extends Controller
 
         $pesertaId = session('peserta_ujian_id');
 
+        // 🔥 Simpan jawaban
         $opsi = OpsiJawaban::findOrFail($data['opsi_jawaban_id']);
 
         JawabanSiswa::updateOrCreate(
             [
                 'peserta_ujian_id' => $pesertaId,
-                'soal_id'  => $data['soal_id']
+                'soal_id' => $data['soal_id']
             ],
             [
                 'opsi_jawaban_id' => $opsi->id,
@@ -75,8 +102,28 @@ class UjianController extends Controller
 
         $totalSoal = Soal::count();
 
+        // 🔚 Jika selesai semua soal
         if ($data['nomor'] > $totalSoal) {
-            return $this->finish($request);
+            return $this->finish();
+        }
+
+        // ⏱ Cek waktu habis
+        $hasil = HasilUjian::where('peserta_ujian_id', $pesertaId)->first();
+
+        $durasi = 30 * 60; // 30 menit
+
+        if ($hasil && $hasil->waktu_mulai) {
+            $elapsed = now()->diffInSeconds($hasil->waktu_mulai);
+
+            if ($elapsed >= $durasi) {
+                return $this->finish();
+            }
+        }
+
+        // 🔒 Cek kuota lagi
+        if (HasilUjian::where('lulus', true)->count() >= 28) {
+            return redirect()->route('peserta.hasil')
+                ->with('error', 'Tes ditutup, kuota sudah penuh');
         }
 
         return redirect()->route('peserta.ujian.show', $data['nomor']);
@@ -86,18 +133,46 @@ class UjianController extends Controller
     {
         $pesertaId = session('peserta_ujian_id');
 
-        if (HasilUjian::where('peserta_ujian_id', $pesertaId)->exists()) {
+        $hasil = HasilUjian::firstOrCreate(
+            ['peserta_ujian_id' => $pesertaId],
+            [
+                'jumlah_benar' => 0,
+                'lulus' => false
+            ]
+        );
+
+        // 🔒 Jangan hitung ulang kalau sudah selesai
+        if ($hasil->waktu_selesai) {
             return redirect()->route('peserta.hasil');
         }
 
+        // ✅ Hitung nilai
         $jumlahBenar = JawabanSiswa::where('peserta_ujian_id', $pesertaId)
             ->where('benar', true)
             ->count();
 
-        HasilUjian::create([
-            'peserta_ujian_id' => $pesertaId,
+        $hasil->update([
             'jumlah_benar' => $jumlahBenar,
-            'lulus' => $jumlahBenar >= 7
+            'waktu_selesai' => now(),
+        ]);
+
+        // 🏆 Ranking TOP 28 (nilai + kecepatan)
+        $top28 = HasilUjian::selectRaw("
+                *,
+                TIMESTAMPDIFF(SECOND, waktu_mulai, waktu_selesai) as durasi
+            ")
+            ->whereNotNull('waktu_selesai')
+            ->orderByDesc('jumlah_benar')
+            ->orderBy('durasi')
+            ->limit(28)
+            ->pluck('id');
+
+        // Reset semua
+        HasilUjian::query()->update(['lulus' => false]);
+
+        // Set TOP 28
+        HasilUjian::whereIn('id', $top28)->update([
+            'lulus' => true
         ]);
 
         return redirect()->route('peserta.hasil');
