@@ -21,6 +21,30 @@
 
 @section('content')
 <div class="container-fluid">
+    @php
+        $hasilUjian = $peserta->hasilUjian;
+        $hasHasilUjian = !is_null($hasilUjian);
+        $isSelesaiUjian = $hasHasilUjian && !is_null($hasilUjian->waktu_selesai);
+        $isLulus = $isSelesaiUjian && $hasilUjian->lulus;
+
+        $statusColor = !$hasHasilUjian ? 'warning' : (!$isSelesaiUjian ? 'info' : ($isLulus ? 'success' : 'danger'));
+        $statusText = !$hasHasilUjian ? 'Belum Ujian' : (!$isSelesaiUjian ? 'Sedang Ujian' : ($isLulus ? 'LULUS' : 'TIDAK LULUS'));
+
+        $durasiDetik = null;
+        if ($hasilUjian?->waktu_mulai) {
+            $durasiDetik = $hasilUjian->waktu_mulai->diffInSeconds($hasilUjian->waktu_selesai ?? now());
+        }
+
+        $durasiPengerjaan = $durasiDetik !== null
+            ? sprintf(
+                '%02d:%02d:%02d',
+                intdiv($durasiDetik, 3600),
+                intdiv($durasiDetik % 3600, 60),
+                $durasiDetik % 60
+            )
+            : '-';
+    @endphp
+
     <div class="card bg-primary-subtle shadow-none position-relative overflow-hidden mb-4">
         <div class="card-body px-4 py-3">
             <div class="row align-items-center">
@@ -46,10 +70,6 @@
     <div class="row">
         <div class="col-lg-4">
             <div class="card overflow-hidden shadow-sm">
-                @php
-                    $statusColor = !$peserta->hasilUjian()->exists() ? 'warning' : ($peserta->isLulus() ? 'success' : 'danger');
-                    $statusText = !$peserta->hasilUjian()->exists() ? 'Belum Ujian' : ($peserta->isLulus() ? 'LULUS' : 'TIDAK LULUS');
-                @endphp
                 <div class="bg-{{ $statusColor }}" style="height: 10px;"></div>
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -67,7 +87,7 @@
                     <div class="row text-center">
                         <div class="col-6 border-end">
                             <h6 class="mb-0 fw-bold">Benar</h6>
-                            <p class="mb-0 text-muted">{{ $peserta->hasilUjian->jumlah_benar ?? '-' }}</p>
+                            <p class="mb-0 text-muted">{{ $isSelesaiUjian ? $hasilUjian->jumlah_benar : '-' }}</p>
                         </div>
                         <div class="col-6">
                             <h6 class="mb-0 fw-bold">Daftar Ulang</h6>
@@ -92,19 +112,27 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @if ($peserta->hasilUjian)
+                    @if ($isSelesaiUjian)
                         <div class="d-flex align-items-center p-3 border rounded bg-light-subtle mb-3">
                             <div class="bg-white rounded p-3 shadow-sm text-center me-4" style="min-width: 100px;">
                                 <div class="text-muted small">Skor Benar</div>
-                                <h2 class="mb-0 fw-bold text-primary">{{ $peserta->hasilUjian->jumlah_benar }}</h2>
+                                <h2 class="mb-0 fw-bold text-primary">{{ $hasilUjian->jumlah_benar }}</h2>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-1">Status Kelulusan</h6>
                                 <p class="mb-0 text-muted small">
-                                    {{ $peserta->hasilUjian->lulus 
+                                    {{ $hasilUjian->lulus
                                         ? 'Selamat! Peserta dinyatakan memenuhi ambang batas nilai.' 
                                         : 'Maaf, peserta belum memenuhi kriteria kelulusan seleksi.' }}
                                 </p>
+                            </div>
+                        </div>
+                    @elseif ($hasHasilUjian)
+                        <div class="alert alert-info border-0 d-flex align-items-center mb-3 shadow-none">
+                            <i class="ti ti-clock-play text-info fs-6 me-3"></i>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Ujian Sedang Berlangsung</h6>
+                                <p class="mb-0 text-muted small">Peserta sudah memulai ujian, tetapi belum menyelesaikannya.</p>
                             </div>
                         </div>
                     @else
@@ -113,6 +141,31 @@
                             <p class="mb-0 text-muted">Belum ada data hasil ujian untuk peserta ini.</p>
                         </div>
                     @endif
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100 bg-light-subtle">
+                                <div class="text-muted small mb-1">Waktu Mulai</div>
+                                <h6 class="mb-0 fw-semibold">
+                                    {{ $hasilUjian?->waktu_mulai ? $hasilUjian->waktu_mulai->translatedFormat('d F Y, H:i:s') : '-' }}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100 bg-light-subtle">
+                                <div class="text-muted small mb-1">Waktu Selesai</div>
+                                <h6 class="mb-0 fw-semibold">
+                                    {{ $hasilUjian?->waktu_selesai ? $hasilUjian->waktu_selesai->translatedFormat('d F Y, H:i:s') : '-' }}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100 bg-light-subtle">
+                                <div class="text-muted small mb-1">Durasi Pengerjaan</div>
+                                <h6 class="mb-0 fw-semibold">{{ $durasiPengerjaan }}</h6>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -12,10 +12,14 @@ class HasilUjian extends Model
         'peserta_ujian_id',
         'jumlah_benar',
         'lulus',
+        'waktu_mulai',
+        'waktu_selesai',
     ];
 
     protected $casts = [
         'lulus' => 'boolean',
+        'waktu_mulai' => 'datetime',
+        'waktu_selesai' => 'datetime',
     ];
 
     public function pesertaUjian()
